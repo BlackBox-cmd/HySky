@@ -24,12 +24,7 @@ function commaNumber(num) {
     return Number(num).toLocaleString('en-US', { maximumFractionDigits: 2 });
 }
 
-/**
- * Format coins with gold color.
- */
-function formatCoins(num) {
-    return `🪙 ${formatNumber(num)}`;
-}
+
 
 /**
  * Create a visual progress bar.
@@ -108,29 +103,13 @@ function titleCase(str) {
         .replace(/\b\w/g, c => c.toUpperCase());
 }
 
-/**
- * Roman numeral converter for enchantment levels.
- */
-function toRoman(num) {
-    const vals = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
-    const syms = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
-    let result = '';
-    for (let i = 0; i < vals.length; i++) {
-        while (num >= vals[i]) {
-            result += syms[i];
-            num -= vals[i];
-        }
-    }
-    return result;
-}
+
 
 module.exports = {
     formatNumber,
     commaNumber,
-    formatCoins,
     progressBar,
     xpToLevel,
     timeAgo,
     titleCase,
-    toRoman,
 };

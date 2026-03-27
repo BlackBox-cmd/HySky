@@ -125,16 +125,24 @@ const CROP_NAMES = {
     sunflower: 'Sunflower'
 };
 
+// ── Minion Slot Unlocks ──────────────────────────────────────────
+// Unique crafted minion count thresholds for additional slots (base = 5)
+const MINION_SLOTS = [
+    5, 15, 30, 50, 75, 100, 125, 150, 175, 200,
+    225, 250, 275, 300, 350, 400, 450, 500, 550, 600,
+    650, 700, 750, 800, 850, 900,
+];
+
 module.exports = {
     SKILLS,
     SLAYERS,
     DUNGEON_CLASSES,
     RARITY_COLORS,
-    RARITY_ORDER,
     COLORS,
     SKILL_XP_TABLES,
     SKILL_EMOJIS,
     CROPS,
     CROP_EMOJIS,
     CROP_NAMES,
+    MINION_SLOTS,
 };

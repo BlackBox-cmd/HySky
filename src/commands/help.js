@@ -12,7 +12,7 @@ module.exports = {
             .addFields(
                 {
                     name: '🏠 Player & Profile',
-                    value: '`/link` — Link your Minecraft account\n`/unlink` — Remove your linked account\n`/stats` — Profile overview\n`/skills` — Skill levels\n`/slayer` — Slayer bosses\n`/dungeons` — Catacombs stats\n`/jacob` — Farming Contests\n`/networth` — Estimated networth\n`/bank` — Balances\n`/pets` — Active & inactive pets\n`/accessories` — Owned/Missing list\n`/mp` — Magical Power stats',
+                    value: '`/link` — Link your Minecraft account\n`/unlink` — Remove your linked account\n`/stats` — Profile overview\n`/skills` — Skill levels\n`/slayer` — Slayer bosses\n`/dungeons` — Catacombs stats\n`/jacob` — Farming Contests\n`/networth` — Estimated networth\n`/bank` — Balances\n`/pets` — Active & inactive pets\n`/accessories` — Owned/Missing list\n`/mp` — Magical Power stats\n`/inventory` — Browse bags & storage\n`/minions` — Crafted & missing minions',
                     inline: false
                 },
                 {

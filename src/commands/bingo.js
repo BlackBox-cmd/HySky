@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const hypixel = require('../api/hypixel');
 const mojang = require('../api/mojang');
+const LinkedAccount = require('../models/LinkedAccount');
 const { skyblockEmbed, playerEmbed, errorEmbed } = require('../utils/embedTemplates');
 
 module.exports = {
@@ -18,36 +19,18 @@ module.exports = {
 
         try {
             if (username) {
-                // Player bingo card
+                // Explicit player argument
                 const { id: uuid, name: ign } = await mojang.getUUID(username);
-                const events = await hypixel.getBingo(uuid);
-
-                if (!events || events.length === 0) {
-                    return interaction.editReply({
-                        embeds: [errorEmbed(`${ign} has no Bingo data.`)]
-                    });
-                }
-
-                const latest = events[events.length - 1];
-                const completed = latest.completed_goals || [];
-                const total = 20; // Bingo cards have 20 goals typically
-
-                const embed = playerEmbed(`🎯 Bingo — ${ign}`, ign, uuid)
-                    .setColor(0xFF6347)
-                    .setDescription(
-                        `**Bingo Key:** ${latest.key || 'Unknown'}\n` +
-                        `**Completed Goals:** ${completed.length}/${total}\n` +
-                        `**Points Earned:** ${latest.points || 0}\n\n` +
-                        `### ✅ Completed Goals\n` +
-                        (completed.length > 0
-                            ? completed.map(g => `• ${g}`).join('\n')
-                            : 'No goals completed yet.')
-                    );
-
-                return interaction.editReply({ embeds: [embed] });
+                return await showPlayerBingo(interaction, uuid, ign);
             }
 
-            // Current bingo event goals
+            // Try linked account for player bingo card
+            const link = await LinkedAccount.findOne({ discordId: interaction.user.id });
+            if (link) {
+                return await showPlayerBingo(interaction, link.minecraftUuid, link.minecraftName);
+            }
+
+            // No player and no linked account — show event goals
             const event = await hypixel.getBingoEvent();
             if (!event || !event.goals) {
                 return interaction.editReply({
@@ -75,3 +58,31 @@ module.exports = {
         }
     },
 };
+
+async function showPlayerBingo(interaction, uuid, ign) {
+    const events = await hypixel.getBingo(uuid);
+
+    if (!events || events.length === 0) {
+        return interaction.editReply({
+            embeds: [errorEmbed(`${ign} has no Bingo data.`)]
+        });
+    }
+
+    const latest = events[events.length - 1];
+    const completed = latest.completed_goals || [];
+    const total = 20;
+
+    const embed = playerEmbed(`🎯 Bingo — ${ign}`, ign, uuid)
+        .setColor(0xFF6347)
+        .setDescription(
+            `**Bingo Key:** ${latest.key || 'Unknown'}\n` +
+            `**Completed Goals:** ${completed.length}/${total}\n` +
+            `**Points Earned:** ${latest.points || 0}\n\n` +
+            `### ✅ Completed Goals\n` +
+            (completed.length > 0
+                ? completed.map(g => `• ${g}`).join('\n')
+                : 'No goals completed yet.')
+        );
+
+    return interaction.editReply({ embeds: [embed] });
+}

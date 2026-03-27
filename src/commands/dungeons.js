@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const hypixel = require('../api/hypixel');
 const mojang = require('../api/mojang');
 const LinkedAccount = require('../models/LinkedAccount');
@@ -47,89 +47,193 @@ module.exports = {
             const catacombs = dungeons.dungeon_types?.catacombs || {};
             const masterCata = dungeons.dungeon_types?.master_catacombs || {};
 
-            // Catacombs Level
+            // ── State ────────────────────────────────────────────
+            let currentView = 'OVERVIEW'; // OVERVIEW, FLOORS, MASTER
+
+            // ── Catacombs Level (shared) ─────────────────────────
             const cataXP = catacombs.experience || 0;
             const cataInfo = xpToLevel(cataXP, SKILL_XP_TABLES.dungeon);
             const cataBar = progressBar(cataInfo.progress, 1, 12);
 
-            // Class Levels
-            const classLines = [];
             const classEmojis = { healer: '💚', mage: '💜', berserk: '❤️', archer: '💛', tank: '💙' };
 
-            for (const cls of DUNGEON_CLASSES) {
-                const clsData = dungeons.player_classes?.[cls] || {};
-                const clsXP = clsData.experience || 0;
-                const clsInfo = xpToLevel(clsXP, SKILL_XP_TABLES.dungeon);
-                const emoji = classEmojis[cls] || '⚔️';
-                classLines.push(
-                    `${emoji} **${titleCase(cls)}** Lvl **${clsInfo.level}** — ${formatNumber(clsXP)} XP`
-                );
-            }
-
-            // Floor Completions
-            const floorLines = [];
-            const completions = catacombs.tier_completions || {};
-            const bestScores = catacombs.best_score || {};
-            const fastestS = catacombs.fastest_time_s || {};
-            const fastestSPlus = catacombs.fastest_time_s_plus || {};
-
-            for (let f = 0; f <= 7; f++) {
-                const comp = completions[f] || 0;
-                if (comp > 0) {
-                    const name = f === 0 ? 'Entrance' : `Floor ${f}`;
-                    const score = bestScores[f] ? ` | Best: ${bestScores[f]}` : '';
-                    const fast = fastestSPlus[f]
-                        ? ` | S+: ${formatTime(fastestSPlus[f])}`
-                        : fastestS[f]
-                            ? ` | S: ${formatTime(fastestS[f])}`
-                            : '';
-                    floorLines.push(`**${name}:** ${commaNumber(comp)} runs${score}${fast}`);
-                }
-            }
-
-            // Master Mode
-            const masterLines = [];
-            const masterComp = masterCata.tier_completions || {};
-            for (let f = 1; f <= 7; f++) {
-                const comp = masterComp[f] || 0;
-                if (comp > 0) {
-                    masterLines.push(`**M${f}:** ${commaNumber(comp)} runs`);
-                }
-            }
-
-            // Selected class
             const selectedClass = dungeons.selected_dungeon_class
                 ? titleCase(dungeons.selected_dungeon_class)
                 : 'None';
 
-            const embed = playerEmbed(`🏰 Dungeons — ${ign}`, ign, uuid)
-                .setColor(COLORS.DUNGEON)
-                .setDescription(
-                    `**Profile:** ${profile.cute_name || 'Unknown'}\n` +
-                    `**Selected Class:** ${selectedClass}\n\n` +
-                    `**⚔️ Catacombs Level ${cataInfo.level}**\n` +
-                    `${cataBar} ${(cataInfo.progress * 100).toFixed(1)}%\n` +
-                    `${formatNumber(cataXP)} Total XP\n`
-                )
-                .addFields(
-                    {
-                        name: '🛡️ Class Levels',
-                        value: classLines.join('\n') || 'No data',
-                        inline: false,
-                    },
-                    {
-                        name: '🗺️ Floor Completions',
-                        value: floorLines.length > 0 ? floorLines.join('\n') : 'No completions',
-                        inline: true,
-                    },
-                    {
-                        name: '💀 Master Mode',
-                        value: masterLines.length > 0 ? masterLines.join('\n') : 'No master runs',
-                        inline: true,
-                    }
-                );
+            // ── Overview page ────────────────────────────────────
+            const buildOverview = () => {
+                const classLines = [];
+                for (const cls of DUNGEON_CLASSES) {
+                    const clsData = dungeons.player_classes?.[cls] || {};
+                    const clsXP = clsData.experience || 0;
+                    const clsInfo = xpToLevel(clsXP, SKILL_XP_TABLES.dungeon);
+                    const emoji = classEmojis[cls] || '⚔️';
+                    classLines.push(
+                        `${emoji} **${titleCase(cls)}** Lvl **${clsInfo.level}** — ${formatNumber(clsXP)} XP`
+                    );
+                }
 
-            await interaction.editReply({ embeds: [embed] });
+                // Quick floor summary
+                const completions = catacombs.tier_completions || {};
+                let totalRuns = 0;
+                for (let f = 0; f <= 7; f++) totalRuns += (completions[f] || 0);
+
+                const masterComp = masterCata.tier_completions || {};
+                let totalMaster = 0;
+                for (let f = 1; f <= 7; f++) totalMaster += (masterComp[f] || 0);
+
+                return playerEmbed(`🏰 Dungeons — ${ign}`, ign, uuid)
+                    .setColor(COLORS.DUNGEON)
+                    .setDescription(
+                        `**Profile:** ${profile.cute_name || 'Unknown'}\n` +
+                        `**Selected Class:** ${selectedClass}\n\n` +
+                        `**⚔️ Catacombs Level ${cataInfo.level}**\n` +
+                        `${cataBar} ${(cataInfo.progress * 100).toFixed(1)}%\n` +
+                        `${formatNumber(cataXP)} Total XP\n`
+                    )
+                    .addFields(
+                        {
+                            name: '🛡️ Class Levels',
+                            value: classLines.join('\n') || 'No data',
+                            inline: false,
+                        },
+                        {
+                            name: '📊 Quick Stats',
+                            value:
+                                `**Total Catacombs Runs:** ${commaNumber(totalRuns)}\n` +
+                                `**Total Master Runs:** ${commaNumber(totalMaster)}`,
+                            inline: false,
+                        }
+                    );
+            };
+
+            // ── Floor Details page ───────────────────────────────
+            const buildFloors = () => {
+                const completions = catacombs.tier_completions || {};
+                const bestScores = catacombs.best_score || {};
+                const fastestS = catacombs.fastest_time_s || {};
+                const fastestSPlus = catacombs.fastest_time_s_plus || {};
+                const mobsKilled = catacombs.mobs_killed || {};
+                const mostDmgBerserk = catacombs.most_damage_berserk || {};
+                const mostDmgMage = catacombs.most_damage_mage || {};
+                const mostHealing = catacombs.most_healing || {};
+
+                const lines = [];
+                for (let f = 0; f <= 7; f++) {
+                    const comp = completions[f] || 0;
+                    const name = f === 0 ? '🚪 Entrance' : `⚔️ Floor ${f}`;
+
+                    const parts = [`**${name}** — ${commaNumber(comp)} runs`];
+
+                    if (bestScores[f]) parts.push(`  🏆 Best Score: **${bestScores[f]}**`);
+
+                    if (fastestSPlus[f]) {
+                        parts.push(`  ⏱️ Fastest S+: **${formatTime(fastestSPlus[f])}**`);
+                    } else if (fastestS[f]) {
+                        parts.push(`  ⏱️ Fastest S: **${formatTime(fastestS[f])}**`);
+                    }
+
+                    if (mobsKilled[f]) parts.push(`  💀 Mobs Killed: **${commaNumber(mobsKilled[f])}**`);
+                    if (mostHealing[f]) parts.push(`  💚 Most Healing: **${commaNumber(Math.floor(mostHealing[f]))}**`);
+
+                    lines.push(parts.join('\n'));
+                }
+
+                return playerEmbed(`🗺️ Floor Details — ${ign}`, ign, uuid)
+                    .setColor(COLORS.DUNGEON)
+                    .setDescription(
+                        `**Profile:** ${profile.cute_name || 'Unknown'}\n` +
+                        `**Catacombs Level:** ${cataInfo.level}\n\n` +
+                        lines.join('\n\n')
+                    );
+            };
+
+            // ── Master Mode page ─────────────────────────────────
+            const buildMaster = () => {
+                const completions = masterCata.tier_completions || {};
+                const bestScores = masterCata.best_score || {};
+                const fastestS = masterCata.fastest_time_s || {};
+                const fastestSPlus = masterCata.fastest_time_s_plus || {};
+
+                const lines = [];
+                let hasAny = false;
+                for (let f = 1; f <= 7; f++) {
+                    const comp = completions[f] || 0;
+                    if (comp > 0) hasAny = true;
+
+                    const parts = [`**💀 M${f}** — ${commaNumber(comp)} runs`];
+
+                    if (bestScores[f]) parts.push(`  🏆 Best Score: **${bestScores[f]}**`);
+
+                    if (fastestSPlus[f]) {
+                        parts.push(`  ⏱️ Fastest S+: **${formatTime(fastestSPlus[f])}**`);
+                    } else if (fastestS[f]) {
+                        parts.push(`  ⏱️ Fastest S: **${formatTime(fastestS[f])}**`);
+                    }
+
+                    lines.push(parts.join('\n'));
+                }
+
+                const desc = hasAny
+                    ? lines.join('\n\n')
+                    : '*No Master Mode runs recorded.*';
+
+                return playerEmbed(`💀 Master Mode — ${ign}`, ign, uuid)
+                    .setColor(COLORS.DUNGEON)
+                    .setDescription(
+                        `**Profile:** ${profile.cute_name || 'Unknown'}\n` +
+                        `**Catacombs Level:** ${cataInfo.level}\n\n` +
+                        desc
+                    );
+            };
+
+            // ── Embed / Row builders ─────────────────────────────
+            const getEmbed = () => {
+                if (currentView === 'FLOORS') return buildFloors();
+                if (currentView === 'MASTER') return buildMaster();
+                return buildOverview();
+            };
+
+            const getRows = () => {
+                const row = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('dg_overview')
+                        .setLabel('Overview')
+                        .setStyle(currentView === 'OVERVIEW' ? ButtonStyle.Success : ButtonStyle.Primary),
+                    new ButtonBuilder()
+                        .setCustomId('dg_floors')
+                        .setLabel('Floors')
+                        .setStyle(currentView === 'FLOORS' ? ButtonStyle.Success : ButtonStyle.Primary),
+                    new ButtonBuilder()
+                        .setCustomId('dg_master')
+                        .setLabel('Master Mode')
+                        .setStyle(currentView === 'MASTER' ? ButtonStyle.Success : ButtonStyle.Primary),
+                );
+                return [row];
+            };
+
+            // ── Send ─────────────────────────────────────────────
+            const message = await interaction.editReply({ embeds: [getEmbed()], components: getRows() });
+
+            const collector = message.createMessageComponentCollector({ time: 300000 });
+
+            collector.on('collect', async i => {
+                if (i.user.id !== interaction.user.id) {
+                    return i.reply({ content: 'These controls are not for you!', flags: 64 });
+                }
+
+                if (i.customId === 'dg_overview') currentView = 'OVERVIEW';
+                else if (i.customId === 'dg_floors') currentView = 'FLOORS';
+                else if (i.customId === 'dg_master') currentView = 'MASTER';
+
+                await i.update({ embeds: [getEmbed()], components: getRows() });
+            });
+
+            collector.on('end', () => {
+                interaction.editReply({ components: [] }).catch(() => {});
+            });
+
         } catch (err) {
             await interaction.editReply({ embeds: [errorEmbed(err.message)] });
         }

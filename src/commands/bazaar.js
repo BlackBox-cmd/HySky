@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const hypixel = require('../api/hypixel');
 const { bazaarEmbed, errorEmbed } = require('../utils/embedTemplates');
 const { formatNumber, commaNumber } = require('../utils/formatNumber');
-const { COLORS } = require('../utils/constants');
+
 
 module.exports = {
     data: new SlashCommandBuilder()

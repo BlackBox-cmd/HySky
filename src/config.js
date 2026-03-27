@@ -4,7 +4,7 @@ module.exports = {
     discord: {
         token: process.env.DISCORD_TOKEN,
         guildId: process.env.GUILD_ID, // Kept to clear old commands if present
-        footerText: process.env.FOOTER_TEXT || 'HySky Bot | Made by Mr_Freak_cmd | v1.1.0',
+        footerText: process.env.FOOTER_TEXT || 'HySky Bot | Made by Mr_Freak_cmd | v1.1.1',
     },
     hypixel: {
         apiKey: process.env.HYPIXEL_API_KEY,

@@ -6,8 +6,9 @@ const LinkedAccount = require('../models/LinkedAccount');
 const UserConfig = require('../models/UserConfig');
 const { playerEmbed, skyblockEmbed, successEmbed, errorEmbed } = require('../utils/embedTemplates');
 const { commaNumber, titleCase } = require('../utils/formatNumber');
-const { COLORS } = require('../utils/constants');
-const { CROPS, CROP_EMOJIS, CROP_NAMES } = require('../utils/constants');
+const { COLORS, CROPS, CROP_EMOJIS, CROP_NAMES } = require('../utils/constants');
+const ALL_CROPS_VALUE = 'all';
+const ALL_CROPS_NAME = 'All Crops';
 
 const HYPIXEL_CROP_EMOJIS = {
     WHEAT: '🌾', CARROT_ITEM: '🥕', POTATO_ITEM: '🥔', PUMPKIN: '🎃',
@@ -39,7 +40,10 @@ module.exports = {
                     opt.setName('crop')
                         .setDescription('Select crop')
                         .setRequired(true)
-                        .addChoices(...CROPS.map(c => ({ name: CROP_NAMES[c], value: c })))
+                        .addChoices(
+                            { name: ALL_CROPS_NAME, value: ALL_CROPS_VALUE },
+                            ...CROPS.map(c => ({ name: CROP_NAMES[c], value: c }))
+                        )
                 )
         )
         .addSubcommand(sub =>
@@ -49,7 +53,10 @@ module.exports = {
                     opt.setName('crop')
                         .setDescription('Select crop')
                         .setRequired(true)
-                        .addChoices(...CROPS.map(c => ({ name: CROP_NAMES[c], value: c })))
+                        .addChoices(
+                            { name: ALL_CROPS_NAME, value: ALL_CROPS_VALUE },
+                            ...CROPS.map(c => ({ name: CROP_NAMES[c], value: c }))
+                        )
                 )
         ),
 
@@ -172,25 +179,59 @@ module.exports = {
 
         } else if (sub === 'subscribe') {
             const crop = interaction.options.getString('crop');
-            
-            await UserConfig.findOneAndUpdate(
+
+            if (crop === ALL_CROPS_VALUE) {
+                await UserConfig.findOneAndUpdate(
+                    { discordId: interaction.user.id },
+                    { $set: { jacobSubscriptions: [ALL_CROPS_VALUE] } },
+                    { upsert: true, returnDocument: 'after' }
+                );
+
+                return interaction.editReply({
+                    embeds: [successEmbed('✅ You will now receive a DM 5 minutes before **all crop contests**!')]
+                });
+            }
+
+            const updated = await UserConfig.findOneAndUpdate(
                 { discordId: interaction.user.id },
                 { $addToSet: { jacobSubscriptions: crop } },
                 { upsert: true, returnDocument: 'after' }
             );
 
-            await interaction.editReply({ embeds: [successEmbed(`✅ You will now receive a DM 5 minutes before any **${CROP_NAMES[crop]}** contest! ✨`)] });
+            const hasAll = updated?.jacobSubscriptions?.includes(ALL_CROPS_VALUE);
+            const extra = hasAll ? '\n\nYou are also subscribed to **All Crops**, so you will still receive every contest alert.' : '';
+
+            await interaction.editReply({
+                embeds: [successEmbed(`✅ You will now receive a DM 5 minutes before any **${CROP_NAMES[crop]}** contest!${extra}`)]
+            });
 
         } else if (sub === 'unsubscribe') {
             const crop = interaction.options.getString('crop');
 
-            await UserConfig.findOneAndUpdate(
+            if (crop === ALL_CROPS_VALUE) {
+                await UserConfig.findOneAndUpdate(
+                    { discordId: interaction.user.id },
+                    { $set: { jacobSubscriptions: [] } },
+                    { upsert: true, returnDocument: 'after' }
+                );
+
+                return interaction.editReply({
+                    embeds: [successEmbed('✅ You have unsubscribed from **all crop contests** alerts.')]
+                });
+            }
+
+            const updated = await UserConfig.findOneAndUpdate(
                 { discordId: interaction.user.id },
                 { $pull: { jacobSubscriptions: crop } },
                 { returnDocument: 'after' }
             );
 
-            await interaction.editReply({ embeds: [successEmbed(`✅ You have unsubscribed from **${CROP_NAMES[crop]}** contest alerts.`)] });
+            const hasAll = updated?.jacobSubscriptions?.includes(ALL_CROPS_VALUE);
+            const extra = hasAll ? '\n\nYou are still subscribed to **All Crops**, so all contest alerts will continue.' : '';
+
+            await interaction.editReply({
+                embeds: [successEmbed(`✅ You have unsubscribed from **${CROP_NAMES[crop]}** contest alerts.${extra}`)]
+            });
         }
         } catch (err) {
             await interaction.editReply({ embeds: [errorEmbed(err.message)] });

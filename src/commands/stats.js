@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const hypixel = require('../api/hypixel');
 const mojang = require('../api/mojang');
 const LinkedAccount = require('../models/LinkedAccount');
-const { playerEmbed, errorEmbed, loadingEmbed } = require('../utils/embedTemplates');
+const { playerEmbed, errorEmbed } = require('../utils/embedTemplates');
 const { formatNumber, commaNumber, progressBar, xpToLevel, titleCase } = require('../utils/formatNumber');
 const { SKILLS, SKILL_EMOJIS, SKILL_XP_TABLES, SLAYERS, COLORS } = require('../utils/constants');
 

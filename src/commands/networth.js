@@ -3,7 +3,7 @@ const hypixel = require('../api/hypixel');
 const mojang = require('../api/mojang');
 const LinkedAccount = require('../models/LinkedAccount');
 const { playerEmbed, errorEmbed } = require('../utils/embedTemplates');
-const { formatNumber, commaNumber } = require('../utils/formatNumber');
+const { formatNumber, commaNumber, titleCase } = require('../utils/formatNumber');
 const { COLORS } = require('../utils/constants');
 
 module.exports = {

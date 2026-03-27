@@ -72,7 +72,8 @@ async function execute(client) {
         }
 
         // 2. Send to Users (DMs)
-        const users = await UserConfig.find({ jacobSubscriptions: { $in: nextContest.crops } });
+        const subscriptionKeys = [...new Set([...nextContest.crops, 'all'])];
+        const users = await UserConfig.find({ jacobSubscriptions: { $in: subscriptionKeys } });
         for (const user of users) {
             try {
                 const discordUser = await client.users.fetch(user.discordId);
