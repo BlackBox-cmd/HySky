@@ -94,21 +94,24 @@ const SKILL_EMOJIS = {
 
 const CROPS = [
     'cactus', 'carrot', 'cocoa', 'melon', 'mushroom',
-    'nether_wart', 'potato', 'pumpkin', 'sugar_cane', 'wheat', 'sunflower'
+    'nether_wart', 'potato', 'pumpkin', 'sugar_cane', 'wheat', 'sunflower',
+    'moonflower', 'wild_rose'
 ];
 
 const CROP_EMOJIS = {
-    cactus: '🌵',
-    carrot: '🥕',
-    cocoa: '🤎',
-    melon: '🍉',
+    cactus: '<a:CACTUS_enchanted:1487602982995497142>',
+    carrot: '<a:CARROT_ITEM_enchanted:1487603049638920372>',
+    cocoa: '<a:ENCHANTED_COCOA_enchanted:1487603935584976956>',
+    melon: '<a:MELON_enchanted:1487603102147412140>',
     mushroom: '🍄',
-    nether_wart: '🩸',
-    potato: '🥔',
-    pumpkin: '🎃',
-    sugar_cane: '🎋',
-    wheat: '🌾',
-    sunflower: '🌻'
+    nether_wart: '<a:NETHER_WART_enchanted:1487603509749616690>',
+    potato: '<a:POTATO_ITEM_enchanted:1487603336264810537>',
+    pumpkin: '<a:PUMPKIN_enchanted:1487603457383727145>',
+    sugar_cane: '<a:SUGAR_CANE_enchanted:1487603265871937566>',
+    wheat: '<a:WHEAT_enchanted:1487603410592071760>',
+    sunflower: '<a:ENCHANTED_SUNFLOWER_enchanted:1487604021781991535>',
+    moonflower: '<a:MOONFLOWER_enchanted:1487603153254879312>',
+    wild_rose: '<a:ENCHANTED_WILD_ROSE_enchanted:1487603373577605180>'
 };
 
 const CROP_NAMES = {
@@ -122,7 +125,9 @@ const CROP_NAMES = {
     pumpkin: 'Pumpkin',
     sugar_cane: 'Sugar Cane',
     wheat: 'Wheat',
-    sunflower: 'Sunflower'
+    sunflower: 'Sunflower',
+    moonflower: 'Moonflower',
+    wild_rose: 'Wild Rose'
 };
 
 // ── Minion Slot Unlocks ──────────────────────────────────────────

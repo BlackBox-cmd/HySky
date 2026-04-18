@@ -13,7 +13,7 @@ module.exports = {
     async execute(client) {
 
         console.log(`\n╔══════════════════════════════════════════╗`);
-        console.log(`║  🎮 HySky a Hypixel SkyBlock Bot        ║`);
+        console.log(`║  🎮 HySky a Hypixel SkyBlock Bot          ║`);
         console.log(`║  Logged in as: ${client.user.tag.padEnd(24)} ║`);
         console.log(`║  Servers: ${String(client.guilds.cache.size).padEnd(29)} ║`);
         console.log(`║  Commands: ${String(client.commands.size).padEnd(28)} ║`);
@@ -57,6 +57,28 @@ module.exports = {
         startFireSaleWatch(client);
         startNewsFeed(client);
         startJacobWatch(client);
+
+        // Start Uptime Kuma monitoring if URL is provided
+        if (config.uptimeKuma && config.uptimeKuma.url) {
+            const pushURL = config.uptimeKuma.url;
+            const interval = config.uptimeKuma.interval;
+
+            const push = async () => {
+                try {
+                    // Include client ping if available (append to string)
+                    // The push URL provided in the example ends with `&ping=`
+                    const urlToPush = pushURL + (client.ws.ping > -1 ? client.ws.ping : '');
+                    await fetch(urlToPush);
+                    // console.log("💓 Uptime Kuma Heartbeat Pushed!"); // Optional to disable for avoiding log spam
+                } catch (err) {
+                    console.error("⚠️ Failed to push heartbeat to Uptime Kuma:", err.message);
+                }
+            };
+
+            push(); // Initial push
+            setInterval(push, interval * 1000);
+            console.log(`⏱️  Uptime Kuma heartbeat started (Interval: ${interval}s).`);
+        }
 
         console.log('✅ All systems online!\n');
     },

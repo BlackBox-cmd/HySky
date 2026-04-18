@@ -23,4 +23,8 @@ module.exports = {
         resourceTTL: 3600,     // 1 hour
         mojangTTL: 600,        // 10 minutes
     },
+    uptimeKuma: {
+        url: process.env.UPTIME_KUMA_URL,
+        interval: parseInt(process.env.UPTIME_KUMA_INTERVAL) || 30,
+    },
 };

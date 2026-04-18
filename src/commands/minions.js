@@ -9,7 +9,7 @@ const { COLORS, MINION_SLOTS } = require('../utils/constants');
 // ── All SkyBlock Minions (complete list) ─────────────────────────
 const MINION_CATEGORIES = {
     FARMING: {
-        emoji: '🌾',
+        emoji: '<a:WHEAT_enchanted:1487603410592071760>',
         ids: [
             'WHEAT', 'CARROT', 'POTATO', 'PUMPKIN', 'MELON',
             'MUSHROOM', 'COCOA', 'CACTUS', 'SUGAR_CANE', 'NETHER_WARTS',

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const hypixel = require('../api/hypixel');
 const strassburger = require('../api/strassburger');
 const mojang = require('../api/mojang');
@@ -11,10 +11,10 @@ const ALL_CROPS_VALUE = 'all';
 const ALL_CROPS_NAME = 'All Crops';
 
 const HYPIXEL_CROP_EMOJIS = {
-    WHEAT: '🌾', CARROT_ITEM: '🥕', POTATO_ITEM: '🥔', PUMPKIN: '🎃',
-    MELON: '🍈', MUSHROOM_COLLECTION: '🍄', CACTUS: '🌵', SUGAR_CANE: '🎋',
-    NETHER_STALK: '🟣', COCOA_BEANS: '☕',
-    MOONFLOWER: '🌸', WILD_ROSE: '🌹', DOUBLE_PLANT: '🌻' 
+    WHEAT: '<a:WHEAT_enchanted:1487603410592071760>', CARROT_ITEM: '<a:CARROT_ITEM_enchanted:1487603049638920372>', POTATO_ITEM: '<a:POTATO_ITEM_enchanted:1487603336264810537>', PUMPKIN: '<a:PUMPKIN_enchanted:1487603457383727145>',
+    MELON: '<a:MELON_enchanted:1487603102147412140>', MUSHROOM_COLLECTION: '🍄', CACTUS: '<a:CACTUS_enchanted:1487602982995497142>', SUGAR_CANE: '<a:SUGAR_CANE_enchanted:1487603265871937566>',
+    NETHER_STALK: '<a:NETHER_WART_enchanted:1487603509749616690>', COCOA_BEANS: '<a:ENCHANTED_COCOA_enchanted:1487603935584976956>',
+    MOONFLOWER: '<a:MOONFLOWER_enchanted:1487603153254879312>', WILD_ROSE: '<a:ENCHANTED_WILD_ROSE_enchanted:1487603373577605180>', DOUBLE_PLANT: '<a:ENCHANTED_SUNFLOWER_enchanted:1487604021781991535>' 
 };
 
 module.exports = {
@@ -62,7 +62,8 @@ module.exports = {
 
     async execute(interaction) {
         // Only next should not be ephemeral (optional preference), but deferReply default is fine.
-        await interaction.deferReply({ ephemeral: interaction.options.getSubcommand() !== 'next' && interaction.options.getSubcommand() !== 'stats' });
+        const isEphemeral = interaction.options.getSubcommand() !== 'next' && interaction.options.getSubcommand() !== 'stats';
+        await interaction.deferReply(isEphemeral ? { flags: MessageFlags.Ephemeral } : {});
         const sub = interaction.options.getSubcommand();
 
         try {
@@ -149,7 +150,7 @@ module.exports = {
                 }
             }
 
-            const embed = playerEmbed(`🌾 Jacob's Contests — ${ign}`, ign, uuid)
+            const embed = playerEmbed(`<a:WHEAT_enchanted:1487603410592071760> Jacob's Contests — ${ign}`, ign, uuid)
                 .setColor(COLORS.GOLD)
                 .setDescription(desc);
 
@@ -168,7 +169,7 @@ module.exports = {
 
             const lines = upcoming.map(contest => {
                 const time = Math.floor(new Date(contest.time).getTime() / 1000);
-                const cropText = contest.crops.map(cropId => `${CROP_EMOJIS[cropId] || '🌾'} **${CROP_NAMES[cropId] || cropId}**`).join('\n* ');
+                const cropText = contest.crops.map(cropId => `${CROP_EMOJIS[cropId] || '<a:WHEAT_enchanted:1487603410592071760>'} **${CROP_NAMES[cropId] || cropId}**`).join('\n* ');
                 return `**Contest <t:${time}:R>**\n* ${cropText}`;
             });
 

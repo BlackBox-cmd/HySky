@@ -47,7 +47,7 @@ async function execute(client) {
         const timeDiff = new Date(nextContest.time).getTime() - Date.now();
         if (timeDiff > 7 * 60 * 1000 || timeDiff < 3 * 60 * 1000) return;
 
-        const cropText = nextContest.crops.map(cropId => `${CROP_EMOJIS[cropId] || '🌾'} **${CROP_NAMES[cropId] || cropId}**`).join('\n* ');
+        const cropText = nextContest.crops.map(cropId => `${CROP_EMOJIS[cropId] || '<a:WHEAT_enchanted:1487603410592071760>'} **${CROP_NAMES[cropId] || cropId}**`).join('\n* ');
         const timestamp = Math.floor(new Date(nextContest.time).getTime() / 1000);
 
         const buildEmbed = (title) => skyblockEmbed(title).setDescription(`**Contest <t:${timestamp}:R>**\n* ${cropText}`);

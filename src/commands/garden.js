@@ -7,10 +7,19 @@ const { formatNumber, commaNumber, progressBar, titleCase } = require('../utils/
 const { COLORS } = require('../utils/constants');
 
 const CROP_EMOJIS = {
-    WHEAT: '🌾', CARROT: '🥕', POTATO: '🥔', PUMPKIN: '🎃',
-    MELON: '🍈', MUSHROOM: '🍄', CACTUS: '🌵', SUGAR_CANE: '🎋',
-    NETHER_WART: '🟣', COCOA_BEANS: '☕',
-    SUNFLOWER: '🌻', MOONFLOWER: '🌸', WILD_ROSE: '🌹',
+    WHEAT: '<a:WHEAT_enchanted:1487603410592071760>',
+    CARROT: '<a:CARROT_ITEM_enchanted:1487603049638920372>',
+    POTATO: '<a:POTATO_ITEM_enchanted:1487603336264810537>',
+    PUMPKIN: '<a:PUMPKIN_enchanted:1487603457383727145>',
+    MELON: '<a:MELON_enchanted:1487603102147412140>',
+    MUSHROOM: '🍄',
+    CACTUS: '<a:CACTUS_enchanted:1487602982995497142>',
+    SUGAR_CANE: '<a:SUGAR_CANE_enchanted:1487603265871937566>',
+    NETHER_WART: '<a:NETHER_WART_enchanted:1487603509749616690>',
+    COCOA_BEANS: '<a:ENCHANTED_COCOA_enchanted:1487603935584976956>',
+    SUNFLOWER: '<a:ENCHANTED_SUNFLOWER_enchanted:1487604021781991535>',
+    MOONFLOWER: '<a:MOONFLOWER_enchanted:1487603153254879312>',
+    WILD_ROSE: '<a:ENCHANTED_WILD_ROSE_enchanted:1487603373577605180>',
 };
 
 module.exports = {

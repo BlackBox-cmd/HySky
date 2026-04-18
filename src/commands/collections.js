@@ -96,7 +96,7 @@ module.exports = {
             desc += `**Collection Tiers Unlocked:** ${totalUnlocked}/${totalMax}\n\n`;
 
             const categoryEmojis = {
-                FARMING: '🌾', MINING: '⛏️', COMBAT: '⚔️',
+                FARMING: '<a:WHEAT_enchanted:1487603410592071760>', MINING: '⛏️', COMBAT: '⚔️',
                 FORAGING: '🪓', FISHING: '🎣', RIFT: '🌀',
             };
 
