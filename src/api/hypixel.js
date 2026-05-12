@@ -32,7 +32,10 @@ async function get(endpoint, params = {}) {
         if (err.response) {
             const status = err.response.status;
             if (status === 429) throw new Error('Rate limited by Hypixel API. Please wait a moment.');
-            if (status === 403) throw new Error('Invalid Hypixel API key.');
+            if (status === 403) {
+                const cause = err.response.data && err.response.data.cause;
+                throw new Error(cause ? `Hypixel API (403): ${cause}` : 'Invalid Hypixel API key.');
+            }
             if (status === 422) throw new Error('Invalid request parameters.');
         }
         throw new Error(`Hypixel API error: ${err.message}`);
